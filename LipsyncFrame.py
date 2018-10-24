@@ -522,10 +522,13 @@ class LipsyncFrame(wx.Frame):
             self, message=_("Save %s File") % appTitle, defaultDir=self.config.Read("WorkingDir", get_main_dir()),
             defaultFile="%s" % self.doc.soundPath.rsplit('.', 1)[0] + ".pgo", wildcard=saveWildcard,
             style=wx.FD_SAVE | wx.FD_CHANGE_DIR | wx.FD_OVERWRITE_PROMPT)
-        if dlg.ShowModal() == wx.ID_OK:
+        result = dlg.ShowModal()
+        print("YOOOOOOO", result, result == wx.ID_OK)
+        if result == wx.ID_OK:
+            print("HIIIIIIII:", dlg.GetPath())
             self.config.Write("WorkingDir", dlg.GetDirectory())
-            self.doc.Save(dlg.GetPaths()[0])
-            self.SetTitle("%s [%s] - %s" % (self.doc.name, dlg.GetPaths()[0], appTitle))
+            self.doc.Save(dlg.GetPath())
+            self.SetTitle("%s [%s] - %s" % (self.doc.name, dlg.GetPath(), appTitle))
         dlg.Destroy()
 
     def OnClose(self):
@@ -651,6 +654,7 @@ class LipsyncFrame(wx.Frame):
         if (self.doc is not None) and (self.doc.currentVoice is not None):
             exporter = self.exportChoice.GetStringSelection()
             if exporter == "MOHO":
+                print("DEFAULT FILE:", self.doc.soundPath.rsplit('.', 1)[0])
                 dlg = wx.FileDialog(
                     self, message=_("Export Lipsync Data (MOHO)"),
                     defaultDir=self.config.Read("WorkingDir", get_main_dir()),
@@ -659,7 +663,10 @@ class LipsyncFrame(wx.Frame):
                     style=wx.FD_SAVE | wx.FD_CHANGE_DIR | wx.FD_OVERWRITE_PROMPT)
                 if dlg.ShowModal() == wx.ID_OK:
                     self.config.Write("WorkingDir", dlg.GetDirectory())
-                    self.doc.currentVoice.Export(dlg.GetPaths()[0])
+                    print("dlg.GetDirectory()", dlg.GetDirectory())
+                    print("dlg.GetPath()", dlg.GetPath())
+                    print("dlg.GetPaths()", dlg.GetPaths())
+                    self.doc.currentVoice.Export(dlg.GetPath())
                 dlg.Destroy()
             elif exporter == "ALELO":
                 fps = int(self.fpsCtrl.GetValue())
